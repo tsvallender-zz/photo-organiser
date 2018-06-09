@@ -14,7 +14,16 @@ def traverse_files(p):
             if TAGS.get(tag, tag) == "DateTime":
                 dt = value
                 break
-        print(split(':| ', dt))
+        sort_photo(f, split(':| ', dt))
+
+def sort_photo(p, dt):
+    year, month, day, hour, minute, second = dt
+    root = Path('/home/tsv/Photos/Sorted')
+    f = hour+minute+second+".jpg"
+    new_path = root / year / month / day
+    print(new_path)
+    Path.mkdir(new_path, parents=True, exist_ok=True)
+    p.rename(new_path / f)
 
 traverse_files(Path.home() / 'Photos')
 
