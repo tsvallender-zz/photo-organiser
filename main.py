@@ -48,6 +48,7 @@ class PhotoSort(object):
             data = i._getexif()
             for tag, value in data.items():
                 if TAGS.get(tag, tag) == "DateTime":
+                    # What if there is no tag?
                     dt = value
                     break
             self.sort_photo(f, split(':| ', dt))
@@ -56,23 +57,33 @@ class PhotoSort(object):
         year, month, day, hour, minute, second = dt
 
         if self.flags.output:
-            # This needs to be checked
             new_path = Path(self.flags.output)
         else:
             new_path = Path.home()
         new_path = new_path / year / month / day
 
-        f = hour+minute+second+".jpg"
+        f = hour+minute+second
+        counter = 0
+        extension = ".jpg"
+        tmp_path = str(new_path) + '/' + str(f) + extension
+        while Path(tmp_path).exists():
+            # check duplicates
+            tmp_path = str(new_path) + '/' + str(f) + '.' + str(counter) + extension
+            counter += 1
+        new_path = tmp_path
 
         if self.flags.verbose:
-            print("Moving to image to " + str(new_path) + '/' + f)
+            print("Moving to image to " + new_path)
         if not self.flags.noaction:
-            Path.mkdir(new_path, parents=True, exist_ok=True)
+            Path.mkdir(Path(new_path).parent, parents=True, exist_ok=True)
             if self.flags.remove:
                 p.rename(new_path / f)
             else:
-                shutil.copyfile(str(p), str(new_path) +'/' + f) 
-                
+                shutil.copyfile(str(p), new_path)
+
+    def check_if_duplicate(self, p1, p2):
+        return
+        
 if __name__ == "__main__":
     main()
 
